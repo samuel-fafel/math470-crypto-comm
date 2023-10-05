@@ -1,5 +1,5 @@
 import random
-from eea import eea_gcd
+from samuel_eea import eea_gcd
 
 def MillerRabin(n, a, k, q, verbose=True):
     if n % 2 == 0:
@@ -47,7 +47,5 @@ if __name__ == '__main__':
     for n in n_list:
         max_a = n//100 # Need to check a maximum of 25% of (2, 3, ... , n-1), so more than n//4 is unneccessary
         print("------------------")
-        #print(f"Composition of {n} between 2 and {max_a}: {isComposite(n, max_a, False)}")
-
-isComposite(69, 65*10, True)
+        print(f"Composition of {n} between 2 and {max_a}: {isComposite(n, max_a, False)}")
         
