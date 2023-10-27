@@ -41,10 +41,10 @@ def factor_N(N, B, interval, primes, non_residues, verbose):
         else:
             if not verbose: print(f"Unable to find enough relations with factor base at B = 10**{int(math.log10(B))} and interval of 10**{int(math.log10(interval))} [{alternate}]")
             if alternate % 3 == 0:
-                B *= 10
+                interval *= 10
                 alternate += 1
             else:
-                interval *= 10
+                B *= 10
                 alternate += 1
     
 def extended_gcd(a, b):
@@ -65,48 +65,52 @@ def mod_inverse(c, p, q):
     # The modular inverse might be negative, so convert it to the positive equivalent
     return inverse % modulus
 
-print("----------------------------------------------------------------------------------")
-N20 = 35437391370189380023 # 10**3, 10**6
-N30 = 403903264686388453744794079313 # 10**4, 10**7
-N40 = 6754910601769419708731690214821789355427 # 10**4, 10**8
-N50 = 60529141009038413034423166889017301527837910258131
-N60 = 133523995803370205942225812853710227025177081936429644652483
-crazy_N = 3426473875287793756703750981622962137419589116424756456135570641437827
+if __name__ == "__main__":
+    print("----------------------------------------------------------------------------------")
+    N1  = 221
+    N2  = 493
+    N3  = 61063
+    N4  = 52907
+    N5  = 198103
+    N6  = 2525891
+    N20 = 35437391370189380023 # 10**3, 10**6
+    N30 = 403903264686388453744794079313 # 10**4, 10**7
+    N40 = 6754910601769419708731690214821789355427 # 10**6, 10**8
+    N50 = 60529141009038413034423166889017301527837910258131
+    N60 = 133523995803370205942225812853710227025177081936429644652483
+    crazy_N = 3426473875287793756703750981622962137419589116424756456135570641437827
 
-N_list = [N20, N30, N40]#, N50, N60, crazy_N]
-factor_dict = {}
-time_dict = {}
-primes = primes_up_to_B(10**7)
-non_residues = compute_non_residues(primes)
-B = 10**2
-I = 10**5
+    N_list = [N1, N2, N3, N4, N5, N6, N20, N30, N40, N50, N60, crazy_N]
+    B_dict = {N1: 10**2,    N2: 10**2,  N3:10**2,   N4:10**3,   N5:10**4,   N6:10**4,
+              N20:10**3,    N30:10**4,  N40:10**5,  N50:10**1,  N60:10**1,  crazy_N:10**1}
+    
+    I_dict = {N1: 10**2,    N2: 10**2,  N3:10**5,   N4:10**5,   N5:10**5,   N6:10**5,
+              N20:10**6,    N30:10**7,  N40:10**8,  N50:10**1,  N60:10**1,  crazy_N:10**1}
+    factor_dict = {}
+    time_dict = {}
+    primes = primes_up_to_B(10**7)
+    non_residues = compute_non_residues(primes)
+    print("----------------------------------------------------------------------------------")
+    with open("factor_timing.csv", 'w') as file:
+        header = "N, Factors, Time\n"
+        file.write(header)
+        for N in N_list[6:8]:
+            B = B_dict[N]
+            I = I_dict[N]
+            
+            start_time = time.time()
+            factor_dict[N] = factor_N(N, B, I, primes, non_residues, verbose=True)
+            end_time = time.time()
+            
+            runtime = end_time - start_time
+            time_dict[N] = runtime
+            
+            file.write(f"{N}, {factor_dict[N]}, {time_dict[N]}\n")
+            print(f"Factors: {factor_dict[N][0]} * {factor_dict[N][1]} == {N} = N --> {factor_dict[N][0] * factor_dict[N][1] == N}")
+            print(f"\tFactoring {N} took {runtime:.4f} seconds to complete. (B=10**{int(math.log10(B))}, I=10**{int(math.log10(I))})")
+            print("----------------------------------------------------------------------------------")
 
-with open("factor_timing.csv", 'w') as file:
-    header = "N, Factors, Time\n"
-    file.write(header)
-    for N in N_list:
-        B *= 10
-        I *= 10
-        
-        if N == N40: 
-            B = 10**6
-            I = 10**8
-        print(f"Initial B = 10**{int(math.log10(B))}")
-        print(f"Initial I = 10**{int(math.log10(I))}")
-        
-        start_time = time.time()
-        factor_dict[N] = factor_N(N, B, I, primes, non_residues, verbose=True)
-        end_time = time.time()
-        
-        runtime = end_time - start_time
-        time_dict[N] = runtime
-        
-        file.write(f"{N}, {factor_dict[N]}, {time_dict[N]}\n")
-        print(f"Factors: {factor_dict[N][0]} * {factor_dict[N][1]} == {N} = N --> {factor_dict[N][0] * factor_dict[N][1] == N}")
-        print(f"\tFactoring {N} took {runtime:.4f} seconds to complete. (B=10**{int(math.log10(B))}, I=10**{int(math.log10(I))})")
-        print("----------------------------------------------------------------------------------")
-
-p, q = factor_dict[N20]
-c = 65537
-inverse_c = mod_inverse(c, p, q)
-print(f"The inverse of {c} mod {(p-1)*(q-1)} is {inverse_c}")
+    p, q = factor_dict[N30]
+    c = 65537
+    inverse_c = mod_inverse(c, p, q)
+    print(f"The inverse of {c} mod {(p-1)*(q-1)} is {inverse_c}")

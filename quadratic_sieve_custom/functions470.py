@@ -33,7 +33,7 @@ def factor_base(N, B, prime_list):
 def Shanks_Tonelli(n, p, Z):
     """ Shanks-Tonelli Algorithm"""
     if quadratic_residue(n, p) != 1:
-        print("not a square (mod p)")
+        print("not a quadratic residue (mod p)")
         return None
     q = p - 1
     s = 0
@@ -96,7 +96,7 @@ def find_smooth(N, interval, base, non_residues, verbose=True):
             if verbose: print("Finding new NR")
             Z = random.randint(1,p)
         residues = Shanks_Tonelli(N, p, Z)
-        if verbose: print(f"Found residues: {residues}")
+        #if verbose: print(f"Found residues: {residues}")
         for r in residues: # Implement sieve
             for i in range((r-start) % p, length, p): # Skip every p terms 
                 while sieve[i] % p == 0: # Keep dividing until no more prime powers
@@ -104,7 +104,7 @@ def find_smooth(N, interval, base, non_residues, verbose=True):
                 if sieve[i] == 1:
                     x_vars.append(i + start)
                     smooths.append(sieve_preserve[i])
-            
+
     return smooths, x_vars
                
 def quadratic_sieve(N,B,interval, primes, non_residues, verbose=True):
@@ -116,15 +116,16 @@ def quadratic_sieve(N,B,interval, primes, non_residues, verbose=True):
         return math.isqrt(N)
     
     # Otherwise...
-    if verbose: print(f"Factor {N}")
+    if verbose: print(f"Factor N = {N}\tB = 10**{int(math.log10(B))}\tI = 10**{int(math.log10(interval))}")
     
     if verbose: print(f"Generate {B}-smooth factor base")
     base = factor_base(N, B, primes)
 
-    if verbose: print(f"Find {len(base)+1} {B}-smooth relations")
+    if verbose: print(f"Find {len(base)} {B}-smooth relations")
     smooths, x_vars = find_smooth(N, interval, base, non_residues, verbose)
     
     # If number of relations < size of the factor base, not enough smooth numbers
+    print(f"Size of Base: {len(base)}, Size of Smooths: {len(smooths)}")
     if len(smooths) < len(base):
         print(f"Unable to find enough relations with factor base at B = 10**{int(math.log10(B))} and interval of 10**{int(math.log10(interval))}")
         return ()
@@ -135,8 +136,9 @@ def quadratic_sieve(N,B,interval, primes, non_residues, verbose=True):
     if square: # If the matrix is square, E is returned as int from build_matrix()
         x = smooths.index(E)
         factor = math.gcd(x_vars[x] + math.isqrt(E), N)
-        if verbose: print(f"Matrix is Square! Factors: {factor} * {N//factor} == {N} --> {factor * N//factor == N}")
-        return factor, factor//N
+        factors = (factor, N//factor)
+        if verbose: print(f"Found a  Square! Factors: {factor} * {N//factor} == {N} --> {factor * N//factor == N}")
+        return factors
     
     if verbose: print("Gaussian Elimination")
     sol_rows, marks, M = hp.gauss_elim(E) #solves the matrix for the null space, finds perfect square
@@ -152,10 +154,11 @@ def quadratic_sieve(N,B,interval, primes, non_residues, verbose=True):
             solution_vec = hp.solve_row(sol_rows, M, marks, col_index)
             factor = hp.solve(solution_vec, smooths, x_vars, N)
         else:
+            factors = (factor, N//factor)
             if verbose: print(f"Found factors: {factor} * {N//factor} == {N} --> {factor * N//factor == N}")
-            return factor, N//factor
+            return factors
             
-        
+
     
     
     

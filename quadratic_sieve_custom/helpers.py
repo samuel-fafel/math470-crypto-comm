@@ -42,7 +42,7 @@ def build_matrix(smooth_nums, factor_base):
             return True, n
 
     return False, M  # M is already transposed
-   
+ 
 def transpose(matrix):
 #transpose matrix so columns become rows, makes list comp easier to work with
     new_matrix = []
@@ -98,9 +98,11 @@ def gauss_elim(M):
 def gauss_elim_custom(M):
     M_length = len(M)
     row_length = len(M[0])
+    print(f"\tNum Rows: {M_length}, Num Cols: {row_length}")
     marks = [False] * row_length
     
     for r, row in enumerate(M): # For all rows
+        #print(f"in row {r}")
         for c, col in enumerate(row): # For all cols
             if col != 0:
                 marks[c] = True # Mark the column
@@ -110,8 +112,9 @@ def gauss_elim_custom(M):
                 
                 break
     
+    print("Transposing Matrix")
     M = transpose(M)
-    
+    print("Finding Solution Rows")
     sol_rows = []
     for i in range(len(marks)): #find free columns (which have now become rows)
         if marks[i]== False:
@@ -155,3 +158,6 @@ def solve(solution_vec,smooth_nums,xlist,N):
     
     factor = math.gcd(b-a,N)
     return factor
+
+# ----------------------------------- #
+
